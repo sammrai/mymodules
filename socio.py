@@ -89,7 +89,7 @@ def savefig(filename, img,max=None,min=None,color=None,message="",colormap='rain
         plt.figtext(0.15,0.963,message)
 
         fig.set_tight_layout(True)
-        plt.savefig(filename)
+        plt.savefig(filename,bbox_inches='tight')
         plt.close()
 
 def get_progressbar_str(progress,message=""):
