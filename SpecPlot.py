@@ -7,6 +7,7 @@ import os
 import argparse
 import code
 import st
+import glob
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -53,7 +54,8 @@ def label_to_float(label):
 def colormake(lis, color="jet", max=1.0, min=0.):
     lis = label_to_float(lis)
     if len(lis) != 1:
-        lis = [(i - np.min(lis)) / (np.max(lis) - np.min(lis)) * (len(lis) - 1) for i in lis]
+        lis = [(i - np.min(lis)) / (np.max(lis) - np.min(lis))
+               * (len(lis) - 1) for i in lis]
     else:
         pass
 
@@ -192,23 +194,6 @@ if args.ggplot:
     plt.style.use('ggplot')
 
 
-if args.FONTSIZE is not None:
-    plt.rcParams['font.size'] = args.FONTSIZE
-if args.FONT is not None:
-    plt.rcParams['font.family'] = args.FONT
-elif isunicode(args.label_x) or isunicode(args.label_y) or isunicode(args.TITLE):
-    # japanese font settings
-    import sys
-    reload(sys)
-    sys.setdefaultencoding('utf-8')
-
-    font_path = '/Library/Fonts/Osaka.ttf'
-    font_prop = FontProperties(fname=font_path)
-    plt.rcParams['font.family'] = font_prop.get_name()
-    plt.rcParams['pdf.fonttype'] = 42
-    plt.rcParams['savefig.dpi'] = 300
-
-
 # set label
 if args.label_file is None:
     label_list = [fname.split('/')[-1] for fname in args.file_in]
@@ -220,17 +205,44 @@ else:
     label_list = label_file.readlines()
     label_list = [label.strip() for label in label_list]
 
+# font settings
+UNICODE_FLAG = isunicode(args.label_x) or isunicode(args.label_y) or isunicode(
+    args.TITLE) or any([isunicode(i) for i in label_list])
+
+if UNICODE_FLAG:
+    # unicode font settings
+    import sys
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
+    dirlist = ["/Library/Fonts/", "/System/Library/Fonts", ]
+    target = ["*ipag*", "*Unicode*"]
+    font_paths = [glob.glob(dirlist[i] + target[j])[0] for i in range(len(dirlist))
+                  for j in range(len(target)) if glob.glob(dirlist[i] + target[j])]
+    if not font_paths:
+        print("##ERROR: japanese fonts is not found.")
+        exit()
+
+    font_path = font_paths[0]
+    font_prop = FontProperties(fname=font_path)
+    plt.rcParams['font.family'] = font_prop.get_name()
+    plt.rcParams['pdf.fonttype'] = 42
+    plt.rcParams['savefig.dpi'] = 300
+elif args.FONT is not None:
+    plt.rcParams['font.family'] = args.FONT
+
+if args.FONTSIZE is not None:
+    plt.rcParams['font.size'] = args.FONTSIZE
 
 # parse files and check
 file_in_ex_check = [os.path.splitext(i)[1] for i in args.file_in]
 if not all(file_in_ex_check[0] == i for i in file_in_ex_check):
-    print "##ERROR : invalid input extension."
+    print "##ERROR: invalid input extension."
     print file_in_ex_check
     exit()
 
 spec_in = np.array(map(np.loadtxt, args.file_in))
 if len(label_list) != len(spec_in):
-    print "##ERROR : label_list is invalid."
+    print "##ERROR: label_list is invalid."
     print "label length is", len(label_list), "spec_in length is", len(spec_in)
     exit()
 
@@ -334,12 +346,10 @@ if args.ytick or args.ytick == 0.:
     plt.yticks(np.arange(ax.get_ylim()[0], ax.get_ylim()[
                1] + args.ytick, args.ytick))
 
-# set ticks
-# ax.tick_params(axis='x', pad=10)
-# ax.tick_params(axis='y', pad=10)
-axissize = None  # int(plt.rcParams['font.size']*0.8)
-plt.xticks(fontsize=axissize)
-plt.yticks(fontsize=axissize)
+
+axissize = None
+# plt.xticks(fontsize=axissize)
+# plt.yticks(fontsize=axissize)
 
 plt.ticklabel_format(style='sci', axis='x', scilimits=(-100, 100))
 plt.ticklabel_format(style='sci', axis='y', scilimits=(-100, 100))
@@ -359,20 +369,11 @@ if args.legend_best:
 if args.legend_holizon:
     ax.legend(loc='best', ncol=len(label_list) / 2, fontsize=fsize)
 
-# border line width
-ax.spines['top'].set_linewidth(major_line_width)
-ax.spines['bottom'].set_linewidth(major_line_width)
-ax.spines['left'].set_linewidth(major_line_width)
-ax.spines['right'].set_linewidth(major_line_width)
-ax.xaxis.set_tick_params(width=major_line_width)
-ax.yaxis.set_tick_params(width=major_line_width)
-
 # log scale
 if args.log_y:
     plt.yscale('log')
 if args.log_x:
     plt.xscale('log')
-
 
 # label
 if args.label_x != "None":
