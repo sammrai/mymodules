@@ -6,9 +6,10 @@ import glob
 import sys
 import re
 
+
 def parseSpectrumMaya(filename):
     label_body_start = '>>>>>Begin Spectral Data<<<<<'
-    label_body_end   = '>>>>>End Spectral Data<<<<<'
+    label_body_end = '>>>>>End Spectral Data<<<<<'
 
     file_spec = open(filename)
     flag_body = False
@@ -25,9 +26,10 @@ def parseSpectrumMaya(filename):
             flag_body = True
     return np.array(spectrum)
 
+
 def parseSpectrumMayaDemo(filename):
     label_body_start = '>>>>>Begin Processed Spectral Data<<<<<'
-    label_body_end   = '>>>>>End Processed Spectral Data<<<<<'
+    label_body_end = '>>>>>End Processed Spectral Data<<<<<'
 
     file_spec = open(filename)
     flag_body = False
@@ -47,7 +49,7 @@ def parseSpectrumMayaDemo(filename):
 
 def parseSpectrumBW(filename):
     label_body_start = 'Pixel;Wavelength;Wavenumber;'
-    col_wlength  = 0
+    col_wlength = 0
     col_dark_sub = 0
 
     file_spec = open(filename)
@@ -60,7 +62,7 @@ def parseSpectrumBW(filename):
             break
         if label_body_start in line:
             labels = line.split(';')
-            for i,label in enumerate(labels):
+            for i, label in enumerate(labels):
                 if 'Wavelength' in label:
                     col_wlength = i
                 if 'Dark Subtracted' in label:
@@ -82,12 +84,13 @@ def parseSpectrumBW(filename):
 
 # Parse program arguments
 parser = argparse.ArgumentParser(description='Average given spectral data')
-parser.add_argument(dest='file_filter', metavar='input', help='prefix/part of dataset (may contain wildcards)')
+parser.add_argument(dest='file_filter', metavar='input',
+                    help='prefix/part of dataset (may contain wildcards)')
 args = parser.parse_args()
 
 # List files
 file_list = glob.glob(args.file_filter)
-if len(file_list)==0:
+if len(file_list) == 0:
     print 'no file matches'
     exit()
 print str(len(file_list)) + ' files'
@@ -117,7 +120,7 @@ spec_sum = []
 # parse all matching files
 for filename in file_list:
     idx = re.search('([0-9]+)$', filename.split('.')[0])
-    sys.stdout.write(idx.group(1)+' ')
+    sys.stdout.write(idx.group(1) + ' ')
     sys.stdout.flush()
 
     spec = parseSpectrum(filename)
@@ -125,12 +128,12 @@ for filename in file_list:
     if num_data == 0:
         spec_sum = np.copy(spec)
     else:
-        spec_sum[:,1:2] += spec[:,1:2]
+        spec_sum[:, 1:2] += spec[:, 1:2]
     num_data += 1
 print
 
 # average data
-spec_sum[:,1:2] /= num_data
+spec_sum[:, 1:2] /= num_data
 
 # save
 file_out = args.file_filter.split('/')[-1]
