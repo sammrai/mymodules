@@ -341,15 +341,14 @@ if args.ymin or args.ymin == 0.:
 if args.ymax or args.ymax == 0.:
     plt.ylim(ymax=args.ymax)
 if args.xtick or args.xtick == 0.:
-    plt.xticks(np.arange(ax.get_xlim()[0], ax.get_xlim()[1] + 1, args.xtick))
+    plt.xticks(np.arange(ax.get_xlim()[0],ax.get_xlim()[1]+args.xtick,args.xtick))
 if args.ytick or args.ytick == 0.:
-    plt.yticks(np.arange(ax.get_ylim()[0], ax.get_ylim()[
-               1] + args.ytick, args.ytick))
+    plt.yticks(np.arange(ax.get_ylim()[0],ax.get_ylim()[1]+args.ytick,args.ytick))
 
 
 axissize = None
-# plt.xticks(fontsize=axissize)
-# plt.yticks(fontsize=axissize)
+plt.xticks(fontsize=axissize)
+plt.yticks(fontsize=axissize)
 
 plt.ticklabel_format(style='sci', axis='x', scilimits=(-100, 100))
 plt.ticklabel_format(style='sci', axis='y', scilimits=(-100, 100))
