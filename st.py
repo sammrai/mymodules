@@ -3,6 +3,7 @@ import numpy as np
 import pickle
 import os
 
+flatten=lambda i,d=-1:[a for b in i for a in(flatten(b,d-(d>0))if hasattr(b,'__iter__')and d else(b,))]
 
 def loadpickle(filename):
     f = open(filename)
