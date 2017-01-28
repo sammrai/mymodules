@@ -32,12 +32,12 @@ import os.path
 import sys
 from scipy.misc import imsave
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-
+from matplotlib import ticker
 import matplotlib.pyplot as plt
 plt.switch_backend('agg')
 
 
-def savefig(filename, img, max=None, min=None, color=None, message="", colormap='rainbow'):
+def savefig(filename, img, max=None, min=None, color=None, message="", colormap='rainbow',position="right",ticks=None):
     """
     Parameters
     ----------
@@ -58,8 +58,6 @@ def savefig(filename, img, max=None, min=None, color=None, message="", colormap=
     """
     if img.ndim != 2:
         raise Exception("#ERROR : dimension number is invarid.")
-    # if filename.split(".")[-1] != "png":raise Exception("#ERROR : .%s format
-    # is not supported."%filename.split(".")[-1])
 
     img = np.array(img)
     img = np.array([0 if "nan" == str(i) else i for i in list(
@@ -68,6 +66,12 @@ def savefig(filename, img, max=None, min=None, color=None, message="", colormap=
         min = np.min(img)
     if max is None:
         max = np.max(img - min)
+    if ticks:
+        ticks=np.arange(min,max+(np.abs(max-min)*1e-5),ticks)
+    if position == "bottom" or position == "top":
+        orientation = "horizontal"
+    else:
+        orientation = "vertical"
     if color is None:
         img -= min
         img /= max
@@ -83,8 +87,8 @@ def savefig(filename, img, max=None, min=None, color=None, message="", colormap=
         ax = plt.gca()
         ax.set_axis_off()
         divider = make_axes_locatable(ax)
-        cax = divider.append_axes("right", size="5%", pad=0.05)
-        plt.colorbar(imgplot, cax=cax)
+        cax = divider.append_axes(position, size="5%", pad=0.05)
+        cb = plt.colorbar(imgplot, cax=cax,ticks=ticks,orientation=orientation) 
 
         # plot
         plt.figtext(0.15, 0.963, message)
