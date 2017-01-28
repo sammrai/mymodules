@@ -32,7 +32,6 @@ import os.path
 import sys
 from scipy.misc import imsave
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from matplotlib import ticker
 import matplotlib.pyplot as plt
 plt.switch_backend('agg')
 
