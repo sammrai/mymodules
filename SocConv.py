@@ -130,8 +130,8 @@ args = parser.parse_args()
 
 if args.fname_float.split(".")[-1] == "float":
 
-    ichigo = socio.openfloat(args.fname_float)
-    x = ichigo.getWavelengths()
+    hsi = socio.openfloat(args.fname_float)
+    x = hsi.getWavelengths()
 
     if args.l:
         light = socio.openfloat(args.l)
@@ -139,9 +139,7 @@ if args.fname_float.split(".")[-1] == "float":
         # B=light[5:10,20:40,:]
 
     x = x[parse2slice(args.slice)[2]]
-    A = ichigo[parse2slice(args.slice)]
-    # A=ichigo[5:10,20:40,:]
-
+    A = hsi[parse2slice(args.slice)]
     C = A
 
     if args.transmittance and args.absorbance:
@@ -151,13 +149,14 @@ if args.fname_float.split(".")[-1] == "float":
         C = trns(A, B)
 
 elif args.fname_float.split(".")[-1] == "pkl":
-    C = st.loadpickle(args.fname_float)[parse2slice(args.slice)]
+    C = st.loadpickle(args.fname_float)
     try:
-        x = np.loadtxt(args.wavelength)[parse2slice(args.slice)[2]]
+        x = np.loadtxt(args.wavelength)
     except:
-        # raise ValueError("Specify wavelength file as -w .")
-        # raise Warning("Specify wavelength file as -w .")
-        x = range(C.shape[2])[parse2slice(args.slice)[2]]
+        x = range(C.shape[2])#[parse2slice(args.slice)[2]]
+
+    C=C[parse2slice(args.slice)]
+    x=x[parse2slice(args.slice)[2]]
 
 if args.absorbance:
     if not args.l:
