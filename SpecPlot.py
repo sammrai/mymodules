@@ -184,7 +184,6 @@ major_line_width = 1.5
 
 rc('mathtext', fontset='stixsans')
 plt.rcParams['font.family'] = 'Times New Roman'
-font_path = '/Library/Fonts/Osaka.ttf'
 
 if args.seaborn:
     # print "###"
