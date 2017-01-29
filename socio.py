@@ -57,6 +57,8 @@ def savefig(filename, img, max=None, min=None, color=None, message="", colormap=
     """
     if img.ndim != 2:
         raise Exception("#ERROR : dimension number is invarid.")
+    if min is not None and max is not None and min > max:
+        raise Exception("#ERROR : min is bigger than max.")
 
     img = np.array(img)
     img = np.array([0 if "nan" == str(i) else i for i in list(

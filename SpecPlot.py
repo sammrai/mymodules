@@ -247,7 +247,7 @@ if len(label_list) != len(spec_in):
     exit()
 
 # when the file num is 1
-if spec_in.shape[0] == 1:
+if spec_in.shape[0] == 1 and spec_in[0].shape[1] != 2:
     if args.wavelength:
         wav = list(np.loadtxt(args.wavelength))
     else:
