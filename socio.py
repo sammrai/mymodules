@@ -36,7 +36,7 @@ import matplotlib.pyplot as plt
 plt.switch_backend('agg')
 
 
-def savefig(filename, img, max=None, min=None, color=None, message="", colormap='rainbow',position="right",ticks=None):
+def savefig(filename, img, max=None, min=None, color=False, message="", colormap='rainbow', position="right", ticks=None):
     """
     Parameters
     ----------
@@ -73,12 +73,13 @@ def savefig(filename, img, max=None, min=None, color=None, message="", colormap=
         orientation = "horizontal"
     else:
         orientation = "vertical"
-    if color is None:
+
+    if not color:
         img -= min
         img /= max
         img = img * 65535.
         imsave(filename, img.astype(np.uint16))
-    if color is "c":
+    else:
         plt.clf()
         imgplot = plt.imshow(img, interpolation='none')
         imgplot.set_cmap(colormap)
@@ -87,15 +88,14 @@ def savefig(filename, img, max=None, min=None, color=None, message="", colormap=
         # colorbar
         ax = plt.gca()
         ax.set_axis_off()
+        ax.set_title(message)
         divider = make_axes_locatable(ax)
         cax = divider.append_axes(position, size="5%", pad=0.05)
         cb = plt.colorbar(imgplot, cax=cax,ticks=ticks,orientation=orientation) 
 
         # plot
-        plt.figtext(0.15, 0.963, message)
         plt.savefig(filename, bbox_inches='tight')
         plt.close()
-
 
 def get_progressbar_str(progress, message=""):
     MAX_LEN = 50
