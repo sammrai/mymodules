@@ -187,7 +187,11 @@ plt.rcParams['font.family'] = 'Times New Roman'
 
 if args.seaborn:
     # print "###"
-    import seaborn
+    try:
+        import seaborn
+    except:
+        print("##WORNING: No module named seaborn\nUse ggplot instead")
+        plt.style.use('ggplot')
 
 if args.ggplot:
     plt.style.use('ggplot')
