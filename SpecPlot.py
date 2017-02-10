@@ -244,10 +244,6 @@ if not all(file_in_ex_check[0] == i for i in file_in_ex_check):
     exit()
 
 spec_in = np.array(map(np.loadtxt, args.file_in))
-if len(label_list) != len(spec_in):
-    print "##ERROR: label_list is invalid."
-    print "label length is", len(label_list), "spec_in length is", len(spec_in)
-    exit()
 
 # when the file num is 1
 if spec_in.shape[0] == 1 and spec_in[0].shape[1] != 2:
@@ -259,7 +255,11 @@ if spec_in.shape[0] == 1 and spec_in[0].shape[1] != 2:
     wav = np.array(wav * spec_in.shape[1]).reshape(spec_in.shape[1:])
     spec_in = np.array([wav, spec_in[0]]).transpose(1, 2, 0)
 
-
+if len(label_list) != len(spec_in):
+    print "##ERROR: label_list is invalid."
+    print "label length is", len(label_list), "spec_in length is", len(spec_in)
+    exit()
+    
 # plot index
 if args.datasize == None:
     args.datasize = len(spec_in)
