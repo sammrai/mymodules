@@ -196,17 +196,37 @@ if args.seaborn:
 if args.ggplot:
     plt.style.use('ggplot')
 
+# parse files and check
+file_in_ex_check = [os.path.splitext(i)[1] for i in args.file_in]
+if not all(file_in_ex_check[0] == i for i in file_in_ex_check):
+    print "##ERROR: invalid input extension."
+    print file_in_ex_check
+    exit()
 
-# set label
+spec_in = np.array(map(np.loadtxt, args.file_in))
+
+# when the file num is 1
+if spec_in.shape[0] == 1 and spec_in[0].shape[1] != 2:
+    if args.wavelength:
+        wav = list(np.loadtxt(args.wavelength))
+    else:
+        wav = range(spec_in.shape[2])
+
+    wav = np.array(wav * spec_in.shape[1]).reshape(spec_in.shape[1:])
+    spec_in = np.array([wav, spec_in[0]]).transpose(1, 2, 0)
+
+#set label
 if args.label_file is None:
     label_list = [fname.split('/')[-1] for fname in args.file_in]
     suff = "." + [fname.split('.')[-1] for fname in label_list][0]
     label_list = [s.strip(suff) for s in label_list]
-
 else:
     label_file = open(args.label_file)
     label_list = label_file.readlines()
     label_list = [label.strip() for label in label_list]
+
+if len(label_list)==1:
+    label_list = [label_list[0]+"%03d"%i for i in range(len(spec_in))]
 
 # font settings
 UNICODE_FLAG = isunicode(args.label_x) or isunicode(args.label_y) or isunicode(
@@ -236,25 +256,7 @@ elif args.FONT is not None:
 if args.FONTSIZE is not None:
     plt.rcParams['font.size'] = args.FONTSIZE
 
-# parse files and check
-file_in_ex_check = [os.path.splitext(i)[1] for i in args.file_in]
-if not all(file_in_ex_check[0] == i for i in file_in_ex_check):
-    print "##ERROR: invalid input extension."
-    print file_in_ex_check
-    exit()
-
-spec_in = np.array(map(np.loadtxt, args.file_in))
-
-# when the file num is 1
-if spec_in.shape[0] == 1 and spec_in[0].shape[1] != 2:
-    if args.wavelength:
-        wav = list(np.loadtxt(args.wavelength))
-    else:
-        wav = range(spec_in.shape[2])
-
-    wav = np.array(wav * spec_in.shape[1]).reshape(spec_in.shape[1:])
-    spec_in = np.array([wav, spec_in[0]]).transpose(1, 2, 0)
-
+#file check
 if len(label_list) != len(spec_in):
     print "##ERROR: label_list is invalid."
     print "label length is", len(label_list), "spec_in length is", len(spec_in)
@@ -267,8 +269,6 @@ plotlist = np.linspace(0, len(spec_in), args.datasize,
                        dtype=int, endpoint=False)
 spec_in = spec_in[plotlist]
 
-print len(spec_in)
-
 # set aspect
 fig = plt.figure()
 ax = plt.subplot(1, 1, 1)
@@ -278,7 +278,7 @@ w, h = fig.get_figwidth(), fig.get_figheight()
 w = w / args.aspect
 ax = plt.axes((0.52 - 0.5 * 0.8 * h / w, 0.12, 0.8 * h / w, 0.8))
 
-
+#sort label
 if args.sortlegend:
     label_ind = np.argsort(np.array(
         [float(j) + float(i) * 1e-10 for i, j in enumerate(label_to_float(label_list))]))
@@ -286,7 +286,6 @@ if args.sortlegend:
         label_ind = np.argsort(AAA)[-1::-1]
     spec_in = [spec_in[i] for i in label_ind]
     label_list = [label_list[i] for i in label_ind]
-
 
 # set color
 if args.legendcolor:
@@ -394,12 +393,8 @@ if args.TITLE is not None:
 if args.intaractive:
     code.InteractiveConsole(globals()).interact()
 
-# plt.tight_layout()
 
-# save
 file_out = st.mkdir_suff(args.out_suffix, "conv",
                          base=args.file_in[0], ex=".pdf")
 print 'Saved to ' + file_out
-
-
 plt.savefig(file_out, bbox_inches='tight', pad_inches=0.2, dpi=args.dpi)
