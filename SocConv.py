@@ -6,7 +6,6 @@ import numpy as np
 import socio
 import st
 
-
 def div1(x, C, dim, smooth=5):
     sh = C.shape
     C = C.reshape(-1, 128)
@@ -25,7 +24,6 @@ def abs(A, light):
         C = np.log10(np.abs(light / A))
     return C
 
-
 def get_hsi_wav(filename, wav=None):
     if filename.split(".")[-1] == "float":
 
@@ -41,7 +39,6 @@ def get_hsi_wav(filename, wav=None):
     else:
         raise ValueError("Format \"%s\" is not supported." % filename.split(
             ".")[-1] + "\nSupported formats: float, pkl.")
-
     return hsi, x
 
 
@@ -78,14 +75,17 @@ def getparse():
 
 args = getparse()
 
-hsi, wav = get_hsi_wav(args.file_in, wav=args.wavelength)
-hsi = hsi[st.parse2slice(args.slice)]
-wav = wav[st.parse2slice(args.slice)[2]]
-
+#check options
 if (args.absorbance or args.transmittance) and args.file_ref == None:
     raise ValueError("Specify reference as -r.")
 if args.file_ref and not(args.transmittance or args.absorbance):
     print("##WARNING: Reference file is not used.")
+
+
+#load files
+hsi, wav = get_hsi_wav(args.file_in, wav=args.wavelength)
+hsi = hsi[st.parse2slice(args.slice)]
+wav = wav[st.parse2slice(args.slice)[2]]
 
 if args.file_ref:
     hsi_l, _ = get_hsi_wav(args.file_ref)
@@ -95,12 +95,11 @@ if args.absorbance:
 elif args.transmittance:
     hsi = trns(hsi, hsi_l)
 elif args.div1:
-    hsi = div1(x, hsi, 1, smooth=args.smooth)
-elif args.div2 != 0:
-    hsi = div1(x, hsi, 2, smooth=args.smooth)
+    hsi = div1(wav, hsi, 1, smooth=args.smooth)
+elif args.div2:
+    hsi = div1(wav, hsi, 2, smooth=args.smooth)
 
 minn, maxx = hsi.min(), hsi.max()
-
 if args.transmittance:
     minn, maxx = 0., 1.
 if args.absorbance:
@@ -116,7 +115,6 @@ try:
     hsi = hsi[:, :, np.newaxis]
 except:
     pass
-
 
 for i, w in enumerate(wav):
     suff = os.path.splitext(args.out_suffix)[1]
