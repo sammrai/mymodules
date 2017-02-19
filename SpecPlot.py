@@ -31,17 +31,6 @@ def isunicode(strings):
             return True
     return False
 
-# def spec(ls,ind):
-#     N=len(ls)-1
-#     dx=1./float(N)
-#     pi=np.pi
-
-#     x=ind
-#     r = (np.sin(1.5*pi*x+pi+pi/4 + pi) + 1)/2.0
-#     g = (np.sin(1.5*pi*x+pi+pi/4 + pi/2) + 1)/2.0
-#     b = (np.sin(1.5*pi*x+pi+pi/4) + 1)/2.0
-#     return b,g,r
-
 
 def label_to_float(label):
     label = [str(l) for l in label]
@@ -59,36 +48,19 @@ def colormake(lis, color="jet", max=1.0, min=0.):
     else:
         pass
 
-    # 3/14 added
     if len(lis) != 1:
         lis = lis / np.max(lis)
 
     color_map = plt.get_cmap(color)
     return [color_map(x) for x in lis]
-    ##
-
-    # color_max=max
-    # color_min=min
-    # color_range = color_max - color_min
-    # color_width = color_range / float(len(lis))
-    # color_index_offset = math.ceil(color_min/color_width)
-    # color_grade_num = len(lis) + color_index_offset + math.ceil((1.0-color_max)/color_width)
-    # color_map = plt.get_cmap(color)
-    # cmap_norm = colors.Normalize(0, color_grade_num-1)
-    # color_smap = cm.ScalarMappable(norm=cmap_norm, cmap=color_map)
-    # A=[]
-    # for i in lis:
-    #     line_color = color_smap.to_rgba(i+color_index_offset)
-    #     A.append(line_color)
-    # return A
-
+  
 
 def getparse():
     # Parse program arguments
     parser = argparse.ArgumentParser(description='plot spectrum')
     parser.add_argument(dest='file_in', nargs='+', metavar='spec_file')
     parser.add_argument('-o', '--out-suffix',
-                        metavar='SUFFIX', type=str, default='spec')
+                        metavar='SUFFIX', type=str, default='plot')
     # parser.add_argument('-s', '--silent', action='store_true', required=False, default=False, help='do not show a preview')
     parser.add_argument('-ld', '--legend', action='store_true',
                         required=False, default=False)
@@ -170,8 +142,6 @@ def getparse():
                         type=str, required=False, default=None)
     parser.add_argument('-i', '--intaractive', action='store_true',
                         required=False, default=False, help="intaractive mode")
-
-    # easy plot transportaion
     parser.add_argument('-w', dest='wavelength')
 
     return parser.parse_args()
@@ -203,17 +173,18 @@ if not all(file_in_ex_check[0] == i for i in file_in_ex_check):
     print file_in_ex_check
     exit()
 
-spec_in = np.array(map(np.loadtxt, args.file_in))
 
-# when the file num is 1
+#file input
+spec_in = np.array(map(np.loadtxt, args.file_in))
 if spec_in.shape[0] == 1 and spec_in[0].shape[1] != 2:
+	# when the file num is 1
     if args.wavelength:
         wav = list(np.loadtxt(args.wavelength))
     else:
         wav = range(spec_in.shape[2])
-
     wav = np.array(wav * spec_in.shape[1]).reshape(spec_in.shape[1:])
     spec_in = np.array([wav, spec_in[0]]).transpose(1, 2, 0)
+
 
 #set label
 if args.label_file is None:
@@ -393,8 +364,7 @@ if args.TITLE is not None:
 if args.intaractive:
     code.InteractiveConsole(globals()).interact()
 
-
-file_out = st.mkdir_suff(args.out_suffix, "conv",
+file_out = st.mkdir_suff(args.out_suffix, "plot",
                          base=args.file_in[0], ex=".pdf")
 print 'Saved to ' + file_out
 plt.savefig(file_out, bbox_inches='tight', pad_inches=0.2, dpi=args.dpi)
