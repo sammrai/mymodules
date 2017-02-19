@@ -91,8 +91,11 @@ def mkdir_suff(f, suff, base="", ex=""):
         DIR = os.path.dirname(f) + "/"
         if not os.path.exists(DIR):
             os.mkdir(DIR)
-    file_out = re.sub(r'_Sub.*..*$', '', os.path.basename(base))
-    file_out = DIR + re.sub(r'\..*$', '', file_out) + "_" + BASE + ex
+
+
+    # print os.path.splitext(base)[0]
+    # file_out = re.sub(r'_Sub.*..*$', '', os.path.basename(base))
+    file_out = DIR + os.path.splitext(os.path.basename(base))[0] + "_" + BASE + ex
     return file_out
 
 
