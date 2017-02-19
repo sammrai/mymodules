@@ -86,8 +86,7 @@ print
 
 
 vcodec = "libx264"
-pix_fmt = "yuv420p"
-os.system("ffmpeg -r %d -i %s/temp_\%s.png -vcodec %s -pix_fmt %s %s -y >/dev/null 2>&1 " %
-          (args.fps, tempDIR, "%05d", vcodec, pix_fmt, args.out))
+os.system("ffmpeg -r %d -i %s/temp_\%s.png -vcodec %s  %s -y >/dev/null 2>&1 " %
+          (args.fps, tempDIR, "%05d", vcodec, args.out))
 shutil.rmtree(tempDIR)
 print 'Saved to ' + args.out
