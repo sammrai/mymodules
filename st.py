@@ -82,9 +82,9 @@ def mkdir_suff(f, suff, base="", ex=""):
         pass
 
     if os.path.basename(f) is "":
-        BASE = suff
+        SUFF = suff
     else:
-        BASE = os.path.basename(f)
+        SUFF = os.path.basename(f)
     if os.path.dirname(f) is "":
         DIR = ""
     else:
@@ -95,7 +95,7 @@ def mkdir_suff(f, suff, base="", ex=""):
 
     # print os.path.splitext(base)[0]
     # file_out = re.sub(r'_Sub.*..*$', '', os.path.basename(base))
-    file_out = DIR + os.path.splitext(os.path.basename(base))[0] + "_" + BASE + ex
+    file_out = DIR + os.path.splitext(os.path.basename(base))[0] + "_" + SUFF + ex
     return file_out
 
 
