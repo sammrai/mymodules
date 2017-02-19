@@ -86,7 +86,8 @@ print
 
 
 vcodec = "libx264"
-os.system("ffmpeg -r %d -i %s/temp_\%s.png -vcodec %s  %s -y >/dev/null 2>&1 " %
-          (args.fps, tempDIR, "%05d", vcodec, args.out))
+if os.system("ffmpeg -r %d -i %s/temp_\%s.png -vcodec %s  %s -y >/dev/null 2>&1 " %
+             (args.fps, tempDIR, "%05d", vcodec, args.out)) != 0:
+              raise Exception("ffmpeg error.")
 shutil.rmtree(tempDIR)
 print 'Saved to ' + args.out
