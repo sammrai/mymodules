@@ -5,6 +5,22 @@ import os
 
 flatten=lambda i,d=-1:[a for b in i for a in(flatten(b,d-(d>0))if hasattr(b,'__iter__')and d else(b,))]
 
+def parse2slice(snapshot):
+
+    def parsesection(snap):
+        try:
+            section = int(snap)
+        except ValueError:
+            section = [int(s) if s else None for s in snap.split(':')]
+            if len(section) > 3:
+                raise ValueError('snapshots input incorrect')
+            section = slice(*section)
+        return section
+
+    section = [s if s else None for s in snapshot.split(',')]
+    return tuple([parsesection(section[i]) for i in range(len(section))])
+    
+    
 def loadpickle(filename):
     f = open(filename)
     h = pickle.load(f)
@@ -92,10 +108,10 @@ def mkdir_suff(f, suff, base="", ex=""):
         if not os.path.exists(DIR):
             os.mkdir(DIR)
 
-
+    BASE=os.path.splitext(os.path.basename(base))[0]
     # print os.path.splitext(base)[0]
     # file_out = re.sub(r'_Sub.*..*$', '', os.path.basename(base))
-    file_out = DIR + os.path.splitext(os.path.basename(base))[0] + "_" + SUFF + ex
+    file_out = DIR + BASE + ("_" if BASE !="" else "") + SUFF + ex
     return file_out
 
 
