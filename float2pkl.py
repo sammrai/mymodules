@@ -22,22 +22,6 @@ def getparse():
     return parser.parse_args()
 
 
-def parse2slice(snapshot):
-
-    def parsesection(snap):
-        try:
-            section = int(snap)
-        except ValueError:
-            section = [int(s) if s else None for s in snap.split(':')]
-            if len(section) > 3:
-                raise ValueError('snapshots input incorrect')
-            section = slice(*section)
-        return section
-
-    section = [s if s else None for s in snapshot.split(',')]
-    return tuple([parsesection(section[i]) for i in range(len(section))])
-
-
 args = getparse()
 
 
@@ -52,7 +36,7 @@ if not args.same:
     basename = DIR + basename
 
 r = socio.openfloat(args.file_in)
-R = r[parse2slice(args.slice)]
+R = r[st.parse2slice(args.slice)]
 
 st.savepickle(basename + ".pkl", R.astype(np.float16))
 

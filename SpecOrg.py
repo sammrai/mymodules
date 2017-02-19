@@ -33,20 +33,6 @@ def fl(lam, x):
     return ind
 
 
-def parse2slice(snapshot):
-
-    def parsesection(snap):
-        try:
-            section = int(snap)
-        except ValueError:
-            section = [int(s) if s else None for s in snap.split(':')]
-            if len(section) > 3:
-                raise ValueError('snapshots input incorrect')
-            section = slice(*section)
-        return section
-
-    section = [s if s else None for s in snapshot.split(',')]
-    return tuple([parsesection(section[i]) for i in range(len(section))])
 
 # Parse program arguments
 parser = argparse.ArgumentParser(description='Convert spectrum')
@@ -67,7 +53,7 @@ spec_in = np.array(map(parseSpectrum, args.file_in))
 
 
 if args.slice:
-    spec_in = [i[(parse2slice(args.slice))] for i in spec_in]
+    spec_in = [i[(st.parse2slice(args.slice))] for i in spec_in]
 
 
 spec_out = np.copy(spec_in[0])
