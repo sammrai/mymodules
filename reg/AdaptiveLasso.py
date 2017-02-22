@@ -1,16 +1,6 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Jan 30 15:07:36 2016
-
-@author: shun-sa
-
-
-"""
 import numpy as np
 from mypool import MyPool
-from scipy import optimize as opt
 from sklearn import linear_model
-
 
 class AdaptiveLasso(linear_model.LinearRegression):
     """
@@ -27,12 +17,14 @@ class AdaptiveLasso(linear_model.LinearRegression):
     Parameters
     ----------
     gamma : float
-        The amount of penalization gamma
+        The amount of penalization gamma. If None, adopt best score based on 10-fold cross varidation from gamma=[0.5, 1., 2.]
+    alpha : float
+        The amount of regulaization parameter. If None, adopt best score based on 10-fold cross varidation.
     alasso_iter_num : int
         The number of iteration
-    alphas : numpy array, optional
-        List of alphas where to compute the models.
-        If None, alphas are set automatically
+    verbose : boolean
+        Print debug message
+
     Attributes
     ----------
     coef_ : array, shape (n_features,) | (n_targets, n_features)
@@ -55,8 +47,6 @@ class AdaptiveLasso(linear_model.LinearRegression):
     0.5005
     >>> print clf.score(X,y)
     0.999999
-
-
 
     References
     ----------
@@ -207,253 +197,3 @@ class AdaptiveLasso(linear_model.LinearRegression):
         self.fit(X, y)
 
 
-class AdaptiveLasso_old(linear_model.LinearRegression):
-
-    """
-    Implementation of the adaptive lasso algorithm using ordinaly lasso algorithm.
-    The optimization objective for Adaptive Lasso is::
-        ||y - Xw||^2_2 + alpha * ||w||_1*v
-
-    where v the weight vector is defined as following::
-
-        v = 1/||w||^gamma_1
-
-    The model of alpha is selected by cross-validation. Read reference to get more algorithm detail.
-
-    Parameters
-    ----------
-    gamma : float
-        The amount of penalization gamma
-    alasso_iter_num : int
-        The number of iteration
-    alphas : numpy array, optional
-        List of alphas where to compute the models.
-        If None, alphas are set automatically
-    Attributes
-    ----------
-    coef_ : array, shape (n_features,) | (n_targets, n_features)
-        parameter vector (w in the cost function formula)
-
-    intercept_ : float | array, shape (n_targets,)
-        independent term in decision function.
-
-    Examples
-    --------
-    >>> import reg
-    >>> X=[[0,0], [1, 1], [2, 2]]
-    >>> y=[0, 1, 2]
-    >>> clf = AdaptiveLasso()
-    >>> clf.fit(X,y)
-
-    >>> print clf.coef_
-    [ 0.999  0.   ]
-    >>> print clf.predict([0.5,0.5])
-    0.5005
-    >>> print clf.score(X,y)
-    0.999999
-
-
-
-    References
-    ----------
-    "The Adaptive Lasso and Its Oracle Properties",Hui Zou, Scheninberg, http://pages.cs.wisc.edu/~shao/stat992/zou2006.pdf
-
-
-    """
-
-    def __init__(self, gamma=1.0, alasso_iter_num=10, alphas=None, verbose=False):
-        self.gamma = gamma
-        self.alasso_iter_num = alasso_iter_num
-        self.alphas = alphas
-        self.verbose = verbose
-
-    def fit(self, X, y):
-        """Fit linear model with coordinate descent
-        Fit is on grid of alphas and best alpha estimated by cross-validation.
-
-        Parameters
-        ----------
-        X : {array-like}, shape (n_samples, n_features)
-            Training data. Pass directly as float64, Fortran-contiguous data
-            to avoid unnecessary memory duplication. If y is mono-output,
-            X can be sparse.
-        y : array-like, shape (n_samples,) or (n_samples, n_targets)
-            Target values
-        """
-
-        from sklearn import linear_model
-        X_ = np.copy(X)
-        y_ = np.copy(y)
-        n_samples, n_features = X_.shape
-        c_ = np.ones(n_features)
-        clf = linear_model.LinearRegression()
-        c_ = clf.fit(X, y).coef_
-        A = 1
-        for i in range(self.alasso_iter_num):
-            w_ = np.power(np.abs(c_), self.gamma)
-            X_ = X_ * w_
-            A = A * w_
-            clf = linear_model.LassoCV(alphas=self.alphas)
-            clf.fit(X_, y_)
-            c_ = clf.coef_ * w_
-            # c_temp=clf.coef_
-
-        self.coef_ = clf.coef_ * A
-        self.intercept_ = np.average(
-            y_) - np.dot(np.mean(X, axis=0), self.coef_)
-
-    def fit_(self, X, y, target, fold=10, iter_=3):
-        def process(one_g):
-            clf_ = AdaptiveLasso(gamma=one_g)
-            clf_.fit(X, y)
-            return count(clf_.coef_, 1e-30)
-
-        def getPinchindex(lis, target):
-            if len(lis) < 2:
-                print "#ERROR"
-                raise
-            for i in range(len(lis))[::-1]:
-                if lis[i] >= target:
-                    try:
-                        return i, i + np.argmax(np.array(lis[i + 1:])) + 1
-                    except:
-                        return i - 1, i
-            if lis[0] == target:
-                return 0, 1
-            raise ValueError(
-                "#ERROR : target value is not exist in list. \nlis:%s target:%s" % (lis, target))
-
-        def count(A, sikii):
-            cou = 1
-            for i in A:
-                if np.abs(i) < sikii:
-                    cou += 1
-            return len(A) - cou + 1
-        gamma = [(10. - 0.) / float(fold - 1) * i + 1e-12 for i in range(fold)]
-        pool = MyPool(fold)
-        results = pool.map(process, gamma)
-        print results
-        for ii in range(iter_):
-            pinch = getPinchindex(results, target)
-            gamma = [(gamma[pinch[1]] - gamma[pinch[0]]) / float(fold - 1) * i + gamma[pinch[0]] for i in range(fold)]
-            print gamma
-            results = pool.map(process, gamma)
-            print results
-            if target in results:
-                break
-        # print gamma
-        # print getPinchindex(results,target)
-        # print gamma[getPinchindex(results,target)[1]]
-
-        self.gamma = gamma[getPinchindex(results, target)[0]]
-        self.fit(X, y)
-
-    def fit_2(self, X, y, target, fold=10, iter_=3):
-        def process(one_g):
-            clf_ = AdaptiveLasso(gamma=one_g)
-            clf_.fit(X, y)
-            return count(clf_.coef_, 1e-30)
-
-        def getPinchindex(lis, target):
-            if len(lis) < 2:
-                print "#ERROR"
-                raise
-            for i in range(len(lis))[::-1]:
-                if lis[i] >= target:
-                    try:
-                        return i, i + np.argmax(np.array(lis[i + 1:])) + 1
-                    except:
-                        return i - 1, i
-            if lis[0] == target:
-                return 0, 1
-            raise ValueError(
-                "#ERROR : target value is not exist in list. \nlis:%s target:%s" % (lis, target))
-
-        def count(A, sikii):
-            cou = 1
-            for i in A:
-                if np.abs(i) < sikii:
-                    cou += 1
-            return len(A) - cou + 1
-        gamma = [(10. - 0.) / float(fold - 1) * i + 1e-12 for i in range(fold)]
-        pool = MyPool(fold)
-        results = pool.map(process, gamma)
-        print results
-        for ii in range(iter_):
-            pinch = getPinchindex(results, target)
-            gamma = [(gamma[pinch[1]] - gamma[pinch[0]]) / float(fold - 1) * i + gamma[pinch[0]] for i in range(fold)]
-            print(gamma)
-            results = pool.map(process, gamma)
-            print results
-            if target in results:
-                break
-        # print gamma
-        # print getPinchindex(results,target)
-        # print gamma[getPinchindex(results,target)[1]]
-
-        self.gamma = gamma[getPinchindex(results, target)[0]]
-        self.fit(X, y)
-
-    # def predict(self,X):
-    #     """Predict using the linear model
-
-    #     Parameters
-    #     ----------
-    #     X : {array-like, sparse matrix}, shape = (n_samples, n_features)
-    #         Samples.
-    #     Returns
-    #     -------
-    #     C : array, shape = (n_samples,)
-    #         Returns predicted values.
-    #     """
-    #     X=np.array(X)
-
-    #     if  len(X.shape)==1:
-    #         return np.dot(self.coef_,X)+self.intercept_
-    #     elif len(X.shape)==2:
-    #         return np.array([np.dot(self.coef_,x)+self.intercept_ for x in X])
-    #     else:
-    #         print "##ERROR : "
-    #         exit()
-    # def score(self,X,y):
-    #     """Returns the mean accuracy on the given test data and labels.
-    #     In multi-label classification, this is the subset accuracy
-    #     which is a harsh metric since you require for each sample that
-    #     each label set be correctly predicted.
-
-    #     Parameters
-    #     ----------
-    #     X : array-like, shape = (n_samples, n_features)
-    #         Test samples.
-    #     y : array-like, shape = (n_samples) or (n_samples, n_outputs)
-    #         True labels for X.
-
-    #     Returns
-    #     -------
-    #     score : float
-    #         Mean accuracy of self.predict(X) wrt. y.
-
-    #     Reference
-    #     -------
-    #     https://en.wikipedia.org/wiki/Coefficient_of_determination
-
-    #     """
-
-    #     try:
-    #         len(y)
-    #         #from sklearn.metrics import r2_score
-    #         #return r2_score(y,self.predict(X))
-    #         #https://en.wikipedia.org/wiki/Coefficient_of_determination
-    #         SSres = np.dot((y-self.predict(X)),(y-self.predict(X)))
-    #         SStot = np.dot(y-np.mean(y),y-np.mean(y))
-    #         return (1-SSres/SStot)
-    #     except:
-    #         raise ValueError("y should have length")
-    # def count(self):
-    #     def count_(A,sikii):
-    #         cou=1
-    #         for i in A:
-    #             if np.abs(i)<sikii:
-    #                 cou+=1
-    #         return len(A)-cou+1
-    #     return count_(self.coef_,1e-30)

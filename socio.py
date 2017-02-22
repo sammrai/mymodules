@@ -49,11 +49,17 @@ def savefig(filename, img, max=None, min=None, color=False, message="", colormap
     Keyword arguments:
         max(min) : max(min) value
             If max(min) is not specified, value will be set automatucally.
-        color : None or "c"
-            If color is not specified, image is saved by glayscale color."c" option save image as pseudcoolor
+        color : boolean
+            Whether to save the image as pseudcoolor.
+        colormap : [ None | Colormap ]
+            Specify matplotlib cmap. See also http://matplotlib.org/examples/color/index.html
+        position : [“left”|”right”|”bottom”|”top”]
+            Position of colrbar.
+        ticks : number, optional
+            Spacing between values.
         message :  str
             Display any message on top of the image. This argument is only available when color option is "c".
-
+            
     """
     if img.ndim != 2:
         raise Exception("#ERROR : dimension number is invarid.")
@@ -91,7 +97,7 @@ def savefig(filename, img, max=None, min=None, color=False, message="", colormap
         ax.set_title(message)
         divider = make_axes_locatable(ax)
         cax = divider.append_axes(position, size="5%", pad=0.05)
-        cb = plt.colorbar(imgplot, cax=cax,ticks=ticks,orientation=orientation) 
+        cb = plt.colorbar(simgplot, cax=cax,ticks=ticks,orientation=orientation) 
 
         # plot
         plt.savefig(filename, bbox_inches='tight')

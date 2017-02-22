@@ -1,15 +1,6 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Jan 30 15:07:36 2016
-
-@author: shun-sa
-
-
-"""
 import numpy as np
 from scipy import optimize as opt
 from sklearn import linear_model
-
 
 def _preprocess_data(X, y, fit_intercept, normalize=False, copy=True, sample_weight=None, return_mean=False):
     """
@@ -50,9 +41,53 @@ def _preprocess_data(X, y, fit_intercept, normalize=False, copy=True, sample_wei
 
 
 class Lasso(linear_model.LinearRegression):
+    """
+    Implementation of lasso using ADMM.
+    The optimization objective for Lasso is::
 
-    def __init__(self, alpha=0.1, iter_num=10000, rho=1., verbose=False, omega=1.5, solver="liblinear"):
-        # linear_model.LinearRegression.__init__(self)
+        ||y - Xw||^2_2 + alpha * ||w||_1
+
+    Parameters
+    ----------
+    iter_num : int
+        The number of ADMM iteration
+    alpha : float
+        If None, alphas are set automatically
+    rho : float
+        Parameters of convergence stability. This considered to be l2 norm regularization parameter.
+    omega : float
+        Parameters of convergence acceleration.
+    solver : default "liblinear"
+        Type of solver. See here https://docs.scipy.org/doc/scipy-0.18.1/reference/generated/scipy.optimize.minimize.html#scipy.optimize.minimize
+    verbose : boolean
+        Print debug message
+
+    Attributes
+    ----------
+    coef_ : array, shape (n_features,) | (n_targets, n_features)
+        parameter vector (w in the cost function formula)
+    intercept_ : float | array, shape (n_targets,)
+        independent term in decision function.
+    curve : array, shape(iteration num)
+        converge curve list.
+    
+    Examples
+    --------
+    >>> import reg
+    >>> X=[[0,0], [1, 1], [2, 2]]
+    >>> y=[0, 1, 2]
+    >>> clf = reg.Lasso()
+    >>> clf.fit(X,y)
+
+    >>> print clf.coef_
+    [ 0.4  0.4]
+    >>> print clf.predict([0.5,0.5])
+    0.6
+    >>> print clf.score(X,y)
+    0.96
+
+    """
+    def __init__(self, iter_num=10000, alpha=1., rho=1., omega=1.5, solver="liblinear", verbose=False):
         self.alpha = alpha
         self.iter_num = iter_num
         self.rho = rho
@@ -102,10 +137,6 @@ class Lasso(linear_model.LinearRegression):
             Target values
         """
 
-        # A, b, X_offset, y_offset, X_scale = _preprocess_data(
-        #     A, b, fit_intercept=self.fit_intercept, normalize=self.normalize,
-        #     copy=self.copy_X, sample_weight=sample_weight)
-
         A_ = np.copy(A)
         b_ = np.copy(b)
         n_samples, n_features = A_.shape
@@ -129,9 +160,3 @@ class Lasso(linear_model.LinearRegression):
         self.intercept_ = np.average(b_) - np.dot(np.mean(A_, axis=0), z)
         return self
 
-        # self.coef_=z
-        # print self.coef_
-        # self._set_intercept(X_offset, y_offset, X_scale)
-
-        # self.n_iter_ = []
-        # return self
