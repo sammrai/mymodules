@@ -74,13 +74,11 @@ SpecPlot.py t_*.txt
 ```
 <!-- <img src="https://cloud.githubusercontent.com/assets/13623491/23201445/f57ceb30-f91c-11e6-8024-06ae53a3cc3d.png" width="50%"> -->
 <img src="https://cloud.githubusercontent.com/assets/13623491/23200999/d58f4c34-f91a-11e6-9a70-3210b1bb7e94.png" width="50%">
-```
-SpecPlot.py t_*.txt
-```
+
 <!-- <img src="https://cloud.githubusercontent.com/assets/13623491/23201447/f5bc7174-f91c-11e6-92ed-e00feda689f2.png" width="50%"> -->
 <img src="https://cloud.githubusercontent.com/assets/13623491/23201001/d5951f92-f91a-11e6-94ba-ed0a26fb52e3.png" width="50%">
 ```
-SpecPlot.py t_01.txt -w wav.txt
+SpecPlot.py t_01.txt
 ```
 <!-- <img src="https://cloud.githubusercontent.com/assets/13623491/23201446/f5bb1734-f91c-11e6-8e92-f7b07a0193d3.png" width="50%"> -->
 <img src="https://cloud.githubusercontent.com/assets/13623491/23201000/d59118ca-f91a-11e6-971e-8f95cedbc22e.png" width="50%">
