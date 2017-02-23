@@ -97,7 +97,7 @@ def savefig(filename, img, max=None, min=None, color=False, message="", colormap
         ax.set_title(message)
         divider = make_axes_locatable(ax)
         cax = divider.append_axes(position, size="5%", pad=0.05)
-        cb = plt.colorbar(simgplot, cax=cax,ticks=ticks,orientation=orientation) 
+        cb = plt.colorbar(imgplot, cax=cax,ticks=ticks,orientation=orientation) 
 
         # plot
         plt.savefig(filename, bbox_inches='tight')
