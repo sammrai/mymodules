@@ -124,7 +124,7 @@ def getparse():
                         type=float, required=False, default=None)
     parser.add_argument('-cc', '--line-color', metavar='LINE_COLOR',
                         type=str, required=False, default=None)
-    parser.add_argument('-c', '--color', metavar='COLOR_MAP', type=str, required=False, default='rainbow',
+    parser.add_argument('-c', '--color', metavar='COLOR_MAP', type=str, required=False, default='Spectral',
                         help="examples:Accent,afmhot,BrBG,gist_earth,autumn,Blues,bone,brg,BuGn,BuPu,bwr,CMRmap,cool,coolwarm,copper,cubehelix,Dark2,flag,gist_heat,gist_ncar,gist_rainbow,gist_stern,GnBu,gnuplot,gnuplot2,gray,Greens,Greys,hot,hsv,jet,nipy_spectral,ocean,Oranges,OrRd,Paired,Pastel1,Pastel2,pink,PiYG,PRGn,prism,PuBu,PuBuGn,PuOr,PuRd,Purples,rainbow,RdBu,RdGy,RdPu,RdYlBu,RdYlGn,Reds,seismic,Set1,Set2,Set3,Spectral,spring,summer,terrain,winter,YlGn,YlGnBu,YlOrBr,YlOrRd")  # jet
 
     parser.add_argument('-cm', '--color-min', metavar='COLOR_MIN', type=float, required=False,
