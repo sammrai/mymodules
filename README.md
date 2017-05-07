@@ -68,7 +68,7 @@ SpecPlot.py [filename *.txt] -options
  - `-i` Intaractive mode
  - `-w` When input files is one, optionally specify wavelength file.
 
-####input examples
+#### input examples
 ```
 SpecPlot.py t_*.txt
 ```
@@ -77,6 +77,7 @@ SpecPlot.py t_*.txt
 
 <!-- <img src="https://cloud.githubusercontent.com/assets/13623491/23201447/f5bc7174-f91c-11e6-92ed-e00feda689f2.png" width="50%"> -->
 <img src="https://cloud.githubusercontent.com/assets/13623491/23201001/d5951f92-f91a-11e6-94ba-ed0a26fb52e3.png" width="50%">
+
 ```
 SpecPlot.py t_01.txt
 ```
